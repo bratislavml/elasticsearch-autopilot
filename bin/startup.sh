@@ -11,12 +11,13 @@ if [[ -z ${CONSUL} ]]; then
     exit 1
 fi
 
-log "Waiting for consul availability"
+# Wait 2 minutes for Consul to be available
+log "Waiting for Consul availability"
 n=0
 until [ $n -ge 120 ]; do
 	until (curl -fsL --connect-timeout 1 https://"$CONSUL":8501/v1/status/leader &> /dev/null); do
-	    sleep 2
-	    n=$((n+2))
+		sleep 2
+		n=$((n+2))
 	done
 	log "Consul is now available [${n}s], starting up Elasticsearch"
 	exec /opt/containerpilot/containerpilot /opt/elasticsearch/bin/elasticsearch
