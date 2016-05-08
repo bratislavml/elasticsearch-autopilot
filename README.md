@@ -41,8 +41,7 @@ b8627b48f874        mterron/elasticsearch-autopilot   es_elasticsearch_data_1
 
 ##### Let's check the cluster health.
 ```bash
-$ MASTER_IP=$(docker inspect es_elasticsearch_1 | jq -r '.[].NetworkSettings.Networks[].IPAddress')
-$ curl "http://${MASTER_IP}:9200/_cluster/health?pretty=true"
+$docker exec -t es_elasticsearch_1 sh -c 'curl "http://$(hostname -i):9200/_cluster/health?pretty=true"'
 {
   "cluster_name" : "demo-autopilot",
   "status" : "green",
@@ -64,7 +63,7 @@ $ curl "http://${MASTER_IP}:9200/_cluster/health?pretty=true"
 
 ##### Lets get some more details on the cluster:
 ```bash
-$ curl "http://${MASTER_IP}:9200/_cluster/state?pretty=true"
+$ docker exec -t es_elasticsearch_1 sh -c 'curl "http://$(hostname -i):9200/_cluster/state?pretty=true"' 
 {
   "cluster_name" : "demo-autopilot",
   "version" : 2,
