@@ -1,0 +1,18 @@
+{
+  "consul": "https://{{ .CONSUL }}:8501",
+  "preStart": "/usr/local/bin/prestart.sh",
+    "logging": {
+    "level": "INFO",
+    "format": "default",
+    "output": "stdout"
+  },
+  "services": [
+    {
+      "name": "{{ .ES_SERVICE_NAME }}",
+      "port": 9300,
+      "health": "/usr/local/bin/health.sh",
+      "poll": 10,
+      "ttl": 25
+    }
+  ]
+}

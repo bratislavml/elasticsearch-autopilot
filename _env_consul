@@ -1,0 +1,10 @@
+# Use your own DNS name inyour composition
+CONSUL_DNS_NAME=consul.service.consul
+
+# Use your own TZ
+TZ=Pacific/Auckland
+
+# Generate your own encryption token!!!!
+CONSUL_ENCRYPT_TOKEN=ISm6AS2DDICjkMdzqjZDPw==
+
+BOOTSTRAP_HOST=es_consul_1
