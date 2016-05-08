@@ -41,7 +41,7 @@ b8627b48f874        mterron/elasticsearch-autopilot   es_elasticsearch_data_1
 
 ##### Let's check the cluster health.
 ```bash
-$ MASTER_IP=$(docker inspect es_elasticsearch_master_1 | json -a NetworkSettings.IPAddress)
+$ MASTER_IP=$(docker inspect es_consul_1 | jq -r '.[].NetworkSettings.Networks[].IPAddress')
 $ curl "http://${MASTER_IP}:9200/_cluster/health?pretty=true"
 {
   "cluster_name" : "demo-autopilot",
