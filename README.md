@@ -70,7 +70,7 @@ $ docker exec -t es_elasticsearch_1 sh -c 'curl "http://$(hostname -i):9200/_clu
 }
 ```
 
-##### Lets get some more details on the cluster:
+##### Let's get some more details on the cluster:
 ```bash
 $ docker exec -t es_elasticsearch_1 sh -c 'curl "http://$(hostname -i):9200/_cluster/state?pretty=true"' 
 {
