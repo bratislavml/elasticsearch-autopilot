@@ -30,18 +30,18 @@ Creating and starting es_consul_3 ... done
 
 $ docker ps --format 'table {{ .ID }}\t{{ .Image }}\t{{ .Names }}'
 CONTAINER ID        IMAGE                             NAMES
-7d9cde11f6c1        mterron/consul-autopilot          es_consul_3
-dbcc619b2906        mterron/consul-autopilot          es_consul_2
-5b5bf3ee6c73        mterron/elasticsearch-autopilot   es_elasticsearch_client_1
-b8627b48f874        mterron/elasticsearch-autopilot   es_elasticsearch_data_1
-0530c223a745        mterron/elasticsearch-autopilot   es_elasticsearch_master_1
-902e9f9790e0        mterron/elasticsearch-autopilot   es_elasticsearch_1
-154dd9e196f1        mterron/consul-autopilot          es_consul_1
+978920c36fdd        mterron/consul-autopilot          es_consul_3
+1022dc1c12ee        mterron/consul-autopilot          es_consul_2
+ac7adb374728        mterron/elasticsearch-autopilot   es_elasticsearch_client_1
+a2d946cc77fa        mterron/elasticsearch-autopilot   es_elasticsearch_data_1
+a40d64cfccf2        mterron/elasticsearch-autopilot   es_elasticsearch_master_1
+56c248bbe1af        mterron/consul-autopilot          es_consul_1
+e7962af4d6b2        mterron/elasticsearch-autopilot   es_elasticsearch_1
 ```
 
 ##### Check Consul cluster status
 ```bash
-$docker exec -t es_consul_1 consul members
+$ docker exec -t es_consul_1 consul members
 Node          Address          Status  Type    Build  Protocol  DC
 1022dc1c12ee  172.20.0.7:8301  alive   server  0.6.4  2         demodc
 56c248bbe1af  172.20.0.2:8301  alive   server  0.6.4  2         demodc
@@ -50,7 +50,7 @@ Node          Address          Status  Type    Build  Protocol  DC
 
 ##### Let's check the cluster health.
 ```bash
-$docker exec -t es_elasticsearch_1 sh -c 'curl "http://$(hostname -i):9200/_cluster/health?pretty=true"'
+$ docker exec -t es_elasticsearch_1 sh -c 'curl "http://$(hostname -i):9200/_cluster/health?pretty=true"'
 {
   "cluster_name" : "demo-autopilot",
   "status" : "green",
@@ -76,43 +76,43 @@ $ docker exec -t es_elasticsearch_1 sh -c 'curl "http://$(hostname -i):9200/_clu
 {
   "cluster_name" : "demo-autopilot",
   "version" : 2,
-  "state_uuid" : "PFRBCE-0SLynni9T1oKrAg",
-  "master_node" : "Zr3rdszPQ9OP_10QV1AStw",
+  "state_uuid" : "nBkpplWDTKaCeiSn5J5UuQ",
+  "master_node" : "SPq-NuqRSnKuvCcS6CnrLQ",
   "blocks" : { },
   "nodes" : {
-    "Zr3rdszPQ9OP_10QV1AStw" : {
-      "name" : "0530c223a745",
-      "transport_address" : "172.20.0.4:9300",
-      "attributes" : {
-        "data" : "false",
-        "master" : "true"
-      }
-    },
-    "bcGzkrmcTeKulwnVcwXrDQ" : {
-      "name" : "902e9f9790e0",
+    "bEqNE_sPRZKrQrCymVM36g" : {
+      "name" : "e7962af4d6b2",
       "transport_address" : "172.20.0.3:9300",
       "attributes" : {
         "master" : "true"
       }
     },
-    "ns1h5o7MRLyWotIc12fZvQ" : {
-      "name" : "5b5bf3ee6c73",
+    "314fEXrMQnKTwmHxEIioFQ" : {
+      "name" : "a2d946cc77fa",
+      "transport_address" : "172.20.0.5:9300",
+      "attributes" : {
+        "master" : "false"
+      }
+    },
+    "KYasJdkQRoyZy9lipzC4Aw" : {
+      "name" : "ac7adb374728",
       "transport_address" : "172.20.0.6:9300",
       "attributes" : {
         "data" : "false",
         "master" : "false"
       }
     },
-    "k6e1KRvdTGaADVteBy0JyA" : {
-      "name" : "b8627b48f874",
-      "transport_address" : "172.20.0.5:9300",
+    "SPq-NuqRSnKuvCcS6CnrLQ" : {
+      "name" : "a40d64cfccf2",
+      "transport_address" : "172.20.0.4:9300",
       "attributes" : {
-        "master" : "false"
+        "data" : "false",
+        "master" : "true"
       }
     }
   },
   "metadata" : {
-    "cluster_uuid" : "qw4kCL3rSv-6pwBbIy-8bQ",
+    "cluster_uuid" : "pjlpRvkuRsaLzF63NeetxQ",
     "templates" : { },
     "indices" : { }
   },
@@ -122,8 +122,8 @@ $ docker exec -t es_elasticsearch_1 sh -c 'curl "http://$(hostname -i):9200/_clu
   "routing_nodes" : {
     "unassigned" : [ ],
     "nodes" : {
-      "k6e1KRvdTGaADVteBy0JyA" : [ ],
-      "bcGzkrmcTeKulwnVcwXrDQ" : [ ]
+      "bEqNE_sPRZKrQrCymVM36g" : [ ],
+      "314fEXrMQnKTwmHxEIioFQ" : [ ]
     }
   }
 }
