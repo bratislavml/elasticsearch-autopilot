@@ -22,8 +22,7 @@ Creating es_elasticsearch_1...
 Creating es_data_1...
 ```
 
-Scale up the Consul cluster to 3 nodes to have quorum.
-
+####Scale up the Consul cluster to 3 nodes to have quorum.
 ```bash
 $ docker-compose -p es scale consul=3
 Creating and starting es_consul_2 ... done
@@ -40,8 +39,7 @@ b8627b48f874        mterron/elasticsearch-autopilot   es_elasticsearch_data_1
 154dd9e196f1        mterron/consul-autopilot          es_consul_1
 ```
 
-Let's check the cluster health.
-
+####Let's check the cluster health.
 ```bash
 $ MASTER_IP=$(docker inspect es_elasticsearch_master_1 | json -a NetworkSettings.IPAddress)
 $ curl "http://${MASTER_IP}:9200/_cluster/health?pretty=true"
@@ -64,8 +62,7 @@ $ curl "http://${MASTER_IP}:9200/_cluster/health?pretty=true"
 }
 ```
 
-Lets get some more details on the cluster:
-
+####Lets get some more details on the cluster:
 ```bash
 $ curl "http://${MASTER_IP}:9200/_cluster/state?pretty=true"
 {
