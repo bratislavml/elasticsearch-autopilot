@@ -26,7 +26,7 @@ services:
   # data and act as potential masternodes. It also serves as a template for
   # master-only, data-only and client ES nodes.
   elasticsearch:
-    image: autopilotpattern/elasticsearch
+    image: mterron/elasticsearch-autopilot
     labels:
       - triton.cns.services=elasticsearch-master
     mem_limit: 256m

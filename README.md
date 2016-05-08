@@ -39,6 +39,15 @@ b8627b48f874        mterron/elasticsearch-autopilot   es_elasticsearch_data_1
 154dd9e196f1        mterron/consul-autopilot          es_consul_1
 ```
 
+##### Check Consul cluster status
+```bash
+$docker exec -t es_consul_1 consul members
+Node          Address          Status  Type    Build  Protocol  DC
+1022dc1c12ee  172.20.0.7:8301  alive   server  0.6.4  2         demodc
+56c248bbe1af  172.20.0.2:8301  alive   server  0.6.4  2         demodc
+978920c36fdd  172.20.0.8:8301  alive   server  0.6.4  2         demodc
+```
+
 ##### Let's check the cluster health.
 ```bash
 $docker exec -t es_elasticsearch_1 sh -c 'curl "http://$(hostname -i):9200/_cluster/health?pretty=true"'
