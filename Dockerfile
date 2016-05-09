@@ -4,7 +4,6 @@ FROM alpine:3.3
 RUN echo http://dl-6.alpinelinux.org/alpine/v3.3/community >> /etc/apk/repositories &&\
     apk upgrade --update &&\
     apk -f -q --no-progress --no-cache add \
-        awk \
         curl \
         bash \
         ca-certificates \
