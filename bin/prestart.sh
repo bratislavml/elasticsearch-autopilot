@@ -14,7 +14,7 @@ replace() {
 
 # get the list of ES master nodes from Consul
 configureMaster() {
-    MASTER=$(curl -Ls --fail "https://${CONSUL}:8501/v1/catalog/service/elasticsearch-master" | jq -r '.[0].ServiceAddress')
+    MASTER=$(curl -Ls --fail "${CONSUL}/v1/catalog/service/elasticsearch-master" | jq -r '.[0].ServiceAddress')
     if [[ $MASTER != "null" ]] && [[ -n $MASTER ]]; then
         log "Master found!, joining cluster."
         replace
