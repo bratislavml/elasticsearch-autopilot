@@ -49,7 +49,7 @@ RUN adduser -D -H -g elasticsearch elasticsearch &&\
     chown -R elasticsearch:elasticsearch /etc/containerpilot &&\
     $(cat /etc/ssl/private/ca.pem >> /etc/ssl/certs/ca-certificates.crt;exit 0)
 
-USER elasticsearch
+#USER elasticsearch
 ENV PATH=$PATH:/opt/elasticsearch/bin
 
 # Add our configuration files and scripts
