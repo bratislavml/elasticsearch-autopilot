@@ -9,7 +9,8 @@ RUN echo http://dl-6.alpinelinux.org/alpine/v3.3/community >> /etc/apk/repositor
         ca-certificates \
         jq \
 		openjdk8-jre-base \
-		openssl
+		openssl \
+        tzdata
 
 # We don't need to expose these ports in order for other containers on Triton
 # to reach this container in the default networking environment, but if we

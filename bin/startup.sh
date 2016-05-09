@@ -11,6 +11,8 @@ if [[ -z ${CONSUL} ]]; then
     exit 1
 fi
 
+/usr/local/bin/set-timezone.sh "$TZ"
+
 # Wait 2 minutes for Consul to be available
 log "Waiting for Consul availability"
 n=0
@@ -20,6 +22,7 @@ until [ $n -ge 120 ]; do
 		n=$((n+2))
 	done
 	log "Consul is now available [${n}s], starting up Elasticsearch"
-	exec /opt/containerpilot/containerpilot /opt/elasticsearch/bin/elasticsearch
+	su-exec elasticsearch:elasticsearch /opt/containerpilot/containerpilot /opt/elasticsearch/bin/elasticsearch
 done
 loge "Consul unavailable, aborting"
+exit 1
