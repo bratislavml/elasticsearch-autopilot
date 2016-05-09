@@ -8,6 +8,9 @@ ES_HEAP_SIZE=128m
 ES_JAVA_OPTS=-XX:-UseGCTaskAffinity -XX:-BindGCTaskThreadsToCPUs -XX:ParallelGCThreads=1 -XX:ParallelCMSThreads=1
 # ES_HEAP_NEWSIZE # optional override
 # ES_DIRECT_SIZE  # optional override
-CONSUL=consul.service.consul
+
+# Consul endpoint
+CONSUL=https://consul.service.consul:8501
+
 # Use your own TZ
 TZ=Pacific/Auckland

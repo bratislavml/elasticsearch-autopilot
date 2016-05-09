@@ -1,7 +1,7 @@
 {
-  "consul": "https://{{ .CONSUL }}:8501",
+  "consul": "{{ .CONSUL }}",
   "preStart": "/usr/local/bin/prestart.sh",
-    "logging": {
+  "logging": {
     "level": "INFO",
     "format": "default",
     "output": "stdout"
