@@ -13,13 +13,17 @@ replace() {
 }
 
 # get the list of ES master nodes from Consul
-configureMaster() {
-    MASTER=$(curl -Ls --fail "${CONSUL}/v1/catalog/service/elasticsearch-master" | jq -r '.[0].ServiceAddress')
+configureMaster() {    
+    MASTER=$(curl -Ls --fail "${CONSUL}/v1/catalog/service/elasticsearch-master" | jq -e -r '.[0].ServiceAddress')
     if [[ $MASTER != "null" ]] && [[ -n $MASTER ]]; then
+        log "MASTER: $MASTER"
         log "Master found!, joining cluster."
         replace
+        log "Installing plugins"
+        #plugin install -b -t 2m royrusso/elasticsearch-HQ
         exit 0
     else
+        unset MASTER
         return 1
     fi
     # if there's no master we fall thru and let the caller figure
@@ -27,30 +31,30 @@ configureMaster() {
 }
 
 MASTER=null
-
 # happy path is that there's a master available and we can cluster
 configureMaster
 
 # data-only or client nodes can only loop until there's a master available
 if [ "${ES_NODE_MASTER}" == false ]; then
     log "Client or Data only node, waiting for master"
+    # Slow poll instead of spinning (2 query every 1 minutes)
     until configureMaster; do
-        sleep 5
+        sleep 30
     done
-    exit 0
 fi
 
 # for a master+data node, we'll retry for 2 minutes to see if there's 
 # another master in the cluster in the process of starting up. But we
 # bail out if we exceed the retries and just bootstrap the cluster
 if [ "${ES_NODE_DATA}" == true ]; then
-    log "Master+Data node, waiting 120s for master"
+    log "Master+Data node, waiting up to 120s for master"
     n=0
-    until [ $n -ge 120 ]
-    do
-        sleep 2
+    until [ $n -ge 120 ]; do
+        until (curl -Ls --fail "${CONSUL}/v1/catalog/service/elasticsearch-master" | jq -r '.[0].ServiceAddress' >/dev/null); do
+            sleep 5
+            n=$((n+5))
+        done
         configureMaster
-        n=$((n+2))
     done
     log "Master not found. Proceed as master"
 fi

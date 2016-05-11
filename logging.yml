@@ -1,4 +1,4 @@
-rootLogger: INFO,console
+rootLogger: WARN,console
 appender:
   console:
     type: console

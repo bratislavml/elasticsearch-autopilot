@@ -103,4 +103,4 @@ discovery.zen.ping.unicast.hosts: ["${ES_BOOTSTRAP_HOST}"]
 # action.destructive_requires_name: true
 
 # Prevent ES from being swapped
-#bootstrap.mlockall: true
+

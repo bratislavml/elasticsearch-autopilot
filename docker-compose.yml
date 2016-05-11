@@ -86,7 +86,7 @@ services:
     labels:
       - triton.cns.services=elasticsearch-client
     depends_on:
-      - elasticsearch_master
+      - elasticsearch_data
     environment:
       - ES_SERVICE_NAME=elasticsearch-client
       - ES_NODE_MASTER=false
