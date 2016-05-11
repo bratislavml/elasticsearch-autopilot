@@ -8,14 +8,15 @@ loge() {
 
 # update discovery.zen.ping.unicast.hosts
 replace() {
-    REPLACEMENT=$(printf 's/^discovery\.zen\.ping\.unicast\.hosts.*$/discovery.zen.ping.unicast.hosts: ["%s"]/' "${MASTER}")
+    REPLACEMENT=$(printf 's/^discovery\.zen\.ping\.unicast\.hosts.*$/discovery\.zen\.ping\.unicast\.hosts: %s/' "${MASTER}")
     sed -i "${REPLACEMENT}" /opt/elasticsearch/config/elasticsearch.yml
 }
 
 # get the list of ES master nodes from Consul
 configureMaster() {    
-    MASTER=$(curl -Ls --fail "${CONSUL}/v1/catalog/service/elasticsearch-master" | jq -e -r '.[0].ServiceAddress')
-    if [[ $MASTER != "null" ]] && [[ -n $MASTER ]]; then
+    #MASTER=$(curl -Ls --fail "${CONSUL}/v1/catalog/service/elasticsearch-master" | jq -e -r '.[0].ServiceAddress')
+    MASTER=$(curl -Ls --fail "${CONSUL}/v1/health/service/elasticsearch-master?passing"| jq -r -e '[.[].Service.Address]' | tr -d '\r\n' | tr -d ' ')
+    if [[ $MASTER != "[]" ]] && [[ -n $MASTER ]]; then
         log "MASTER: $MASTER"
         log "Master found!, joining cluster."
         replace
@@ -30,7 +31,7 @@ configureMaster() {
     # out what to do next
 }
 
-MASTER=null
+MASTER=[]
 # happy path is that there's a master available and we can cluster
 configureMaster
 
@@ -50,7 +51,7 @@ if [ "${ES_NODE_DATA}" == true ]; then
     log "Master+Data node, waiting up to 120s for master"
     n=0
     until [ $n -ge 120 ]; do
-        until (curl -Ls --fail "${CONSUL}/v1/catalog/service/elasticsearch-master" | jq -r '.[0].ServiceAddress' >/dev/null); do
+        until (curl -Ls --fail "${CONSUL}/v1/health/service/elasticsearch-master?passing" | jq -r -e '.[0].ServiceAddress' >/dev/null); do
             sleep 5
             n=$((n+5))
         done
