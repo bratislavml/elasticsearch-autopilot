@@ -6,12 +6,12 @@ loge() {
     printf "%s\n" "$@"|awk '{print strftime("%Y/%m/%d %T",systime()),"[ERROR] startup.sh:",$0}'
 }
 
+/usr/local/bin/set-timezone.sh "$TZ"
+
 if [[ -z ${CONSUL} ]]; then
     loge "Missing CONSUL environment variable"
     exit 1
 fi
-
-/usr/local/bin/set-timezone.sh "$TZ"
 
 # Wait 2 minutes for Consul to be available
 log "Waiting for Consul availability"
