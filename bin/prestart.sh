@@ -15,7 +15,7 @@ replace() {
 # get the list of ES master nodes from Consul
 configureMaster() {    
     #MASTER=$(curl -Ls --fail "${CONSUL}/v1/catalog/service/elasticsearch-master" | jq -e -r '.[0].ServiceAddress')
-    MASTER=$(curl -Ls --fail "${CONSUL}/v1/health/service/elasticsearch-master?passing"| jq -r -e '[.[].Service.Address]' | tr -d '\r\n' | tr -d ' ')
+    MASTER=$(curl -Ls --fail "${CONSUL}/v1/health/service/elasticsearch-master?passing"| jq -r -e '[.[].Service.Address]' | tr -d ' \r\n')
     if [[ $MASTER != "[]" ]] && [[ -n $MASTER ]]; then
         log "MASTER: $MASTER"
         log "Master found!, joining cluster."
@@ -31,7 +31,6 @@ configureMaster() {
     # out what to do next
 }
 
-MASTER=[]
 # happy path is that there's a master available and we can cluster
 configureMaster
 
