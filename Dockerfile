@@ -8,6 +8,7 @@ RUN echo http://dl-6.alpinelinux.org/alpine/v3.3/community >> /etc/apk/repositor
 		bash \
 		ca-certificates \
 		jq \
+		libcap \
 		openjdk8-jre-base \
 		openssl \
 		su-exec \
@@ -22,8 +23,9 @@ EXPOSE 9200 9300
 # Add Containerpilot and set its configuration path
 ENV CONTAINERPILOT_VERSION=2.1.2 \
 	CONTAINERPILOT=file:///etc/containerpilot/containerpilot.json
-RUN curl -# -LO https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VERSION}/containerpilot-${CONTAINERPILOT_VERSION}.tar.gz &&\
-	curl -# -LO https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VERSION}/containerpilot-${CONTAINERPILOT_VERSION}.sha1.txt &&\
+ADD https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VERSION}/containerpilot-${CONTAINERPILOT_VERSION}.tar.gz /tmp/
+ADD	https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VERSION}/containerpilot-${CONTAINERPILOT_VERSION}.sha1.txt /tmp/
+RUN	cd /tmp &&\
 	sha1sum -sc containerpilot-${CONTAINERPILOT_VERSION}.sha1.txt &&\
 	mkdir -p /opt/containerpilot &&\
 	tar xzf containerpilot-${CONTAINERPILOT_VERSION}.tar.gz -C /opt/containerpilot/ &&\
@@ -31,11 +33,11 @@ RUN curl -# -LO https://github.com/joyent/containerpilot/releases/download/${CON
 
 # get Elasticsearch release
 ENV ES_VERSION=2.3.2
+ADD https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz /tmp/
 RUN mkdir -p /opt &&\
-	curl -# -Lo /tmp/elasticsearch.tar.gz https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz &&\
-	tar xzf /tmp/elasticsearch.tar.gz &&\
+	tar xzf /tmp/elasticsearch-${ES_VERSION}.tar.gz &&\
 	mv elasticsearch-${ES_VERSION} /opt/elasticsearch &&\
-	rm -f /tmp/elasticsearch.tar.gz
+	rm -f /tmp/elasticsearch-${ES_VERSION}.tar.gz
 
 # Copy internal CA certificate bundle.
 COPY ca.pem /etc/ssl/private/
@@ -59,7 +61,6 @@ ENV PATH=$PATH:/opt/elasticsearch/bin
 COPY bin/* /usr/local/bin/
 COPY containerpilot.json /etc/containerpilot/containerpilot.json
 COPY logging.yml /opt/elasticsearch/config/logging.yml
-#COPY elasticsearch.yml /opt/elasticsearch/config/elasticsearch.yml
 
 # If you build on top of this image, please provide this files
 ONBUILD COPY ca.pem /etc/ssl/private/
