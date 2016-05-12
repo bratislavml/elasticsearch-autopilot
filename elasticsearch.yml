@@ -15,18 +15,24 @@
 # Use a descriptive name for your cluster:
 
 cluster.name: ${CLUSTER_NAME}
+node.name: ${HOSTNAME}
+node.master: ${ES_NODE_MASTER}
+node.data: ${ES_NODE_DATA}
+path.data: /elasticsearch/data
+path.logs: /elasticsearch/log
+network.host: _eth0:ipv4_
+discovery.zen.minimum_master_nodes: 2
+discovery.zen.ping.multicast.enabled: false
+discovery.zen.ping.unicast.hosts: ["${ES_BOOTSTRAP_HOST}"]
 
 # ------------------------------------ Node ------------------------------------
 
 # Assign the container ID to the node name so to eliminate having to translate
 # between the two while debugging.
 
-node.name: ${HOSTNAME}
 
 # By default, all nodes are eligible to become masters and store data.
 
-node.master: ${ES_NODE_MASTER}
-node.data: ${ES_NODE_DATA}
 
 # Add custom attributes to the node:
 #
@@ -36,11 +42,9 @@ node.data: ${ES_NODE_DATA}
 
 # Path to directory where to store the data (separate multiple locations by comma):
 
-path.data: /elasticsearch/data
 
 # Path to log files:
 
-path.logs: /elasticsearch/log
 
 # ----------------------------------- Memory -----------------------------------
 #
@@ -57,7 +61,6 @@ path.logs: /elasticsearch/log
 
 # Set the bind address to a specific IP (IPv4 or IPv6):
 
-network.host: _eth0:ipv4_
 
 # Set a custom port for HTTP:
 #
@@ -83,14 +86,11 @@ network.host: _eth0:ipv4_
 #
 # Prevent the "split brain" by configuring the majority of nodes (total number of nodes / 2 + 1):
 #
-discovery.zen.minimum_master_nodes: 2
 
 # We'll bootstrap cluster communications by getting a master node via
 # the ContainerPilot `preStart` directive, which will rewrite this
 # configuration value with the appropriate hostname.
 
-discovery.zen.ping.multicast.enabled: false
-discovery.zen.ping.unicast.hosts: ["${ES_BOOTSTRAP_HOST}"]
 
 # ---------------------------------- Various -----------------------------------
 #

@@ -20,7 +20,7 @@ RUN echo http://dl-6.alpinelinux.org/alpine/v3.3/community >> /etc/apk/repositor
 EXPOSE 9200 9300
 
 # Add Containerpilot and set its configuration path
-ENV CONTAINERPILOT_VERSION=2.1.1 \
+ENV CONTAINERPILOT_VERSION=2.1.2 \
 	CONTAINERPILOT=file:///etc/containerpilot/containerpilot.json
 RUN curl -# -LO https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VERSION}/containerpilot-${CONTAINERPILOT_VERSION}.tar.gz &&\
 	curl -# -LO https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VERSION}/containerpilot-${CONTAINERPILOT_VERSION}.sha1.txt &&\
@@ -59,13 +59,11 @@ ENV PATH=$PATH:/opt/elasticsearch/bin
 COPY bin/* /usr/local/bin/
 COPY containerpilot.json /etc/containerpilot/containerpilot.json
 COPY logging.yml /opt/elasticsearch/config/logging.yml
-COPY elasticsearch.yml /opt/elasticsearch/config/elasticsearch.yml
+#COPY elasticsearch.yml /opt/elasticsearch/config/elasticsearch.yml
 
 # If you build on top of this image, please provide this files
 ONBUILD COPY ca.pem /etc/ssl/private/
-ONBUILD COPY containerpilot.json /etc/containerpilot/containerpilot.json
 ONBUILD COPY logging.yml /opt/elasticsearch/config/logging.yml
-ONBUILD COPY elasticsearch.yml /opt/elasticsearch/config/elasticsearch.yml
 
 # Put Elasticsearch data on a separate volume to avoid filesystem performance issues with Docker image layers
 VOLUME ["/elasticsearch"]
