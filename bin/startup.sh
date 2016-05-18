@@ -14,7 +14,7 @@ if [[ -z ${CONSUL} ]]; then
 fi
 
 # Wait 2 minutes for Consul to be available
-log "Waiting for Consul availability"
+log "Waiting for Consul availability..."
 n=0
 until [ $n -ge 120 ]; do
 	until (curl -fsL --connect-timeout 1 "${CONSUL}/v1/status/leader" &> /dev/null); do

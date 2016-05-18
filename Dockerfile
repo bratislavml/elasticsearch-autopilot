@@ -20,13 +20,13 @@ RUN echo http://dl-6.alpinelinux.org/alpine/v3.3/community >> /etc/apk/repositor
 # for purposes of linking.
 EXPOSE 9200 9300
 
+WORKDIR /tmp
 # Add Containerpilot and set its configuration path
 ENV CONTAINERPILOT_VERSION=2.1.2 \
 	CONTAINERPILOT=file:///etc/containerpilot/containerpilot.json
 ADD https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VERSION}/containerpilot-${CONTAINERPILOT_VERSION}.tar.gz /tmp/
 ADD	https://github.com/joyent/containerpilot/releases/download/${CONTAINERPILOT_VERSION}/containerpilot-${CONTAINERPILOT_VERSION}.sha1.txt /tmp/
-RUN	cd /tmp &&\
-	sha1sum -sc containerpilot-${CONTAINERPILOT_VERSION}.sha1.txt &&\
+RUN	sha1sum -sc containerpilot-${CONTAINERPILOT_VERSION}.sha1.txt &&\
 	mkdir -p /opt/containerpilot &&\
 	tar xzf containerpilot-${CONTAINERPILOT_VERSION}.tar.gz -C /opt/containerpilot/ &&\
 	rm -f containerpilot-${CONTAINERPILOT_VERSION}.*
@@ -35,9 +35,9 @@ RUN	cd /tmp &&\
 ENV ES_VERSION=2.3.2
 ADD https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz /tmp/
 RUN mkdir -p /opt &&\
-	tar xzf /tmp/elasticsearch-${ES_VERSION}.tar.gz &&\
+	tar xzf elasticsearch-${ES_VERSION}.tar.gz &&\
 	mv elasticsearch-${ES_VERSION} /opt/elasticsearch &&\
-	rm -f /tmp/elasticsearch-${ES_VERSION}.tar.gz
+	rm -f elasticsearch-${ES_VERSION}.tar.gz
 
 # Copy internal CA certificate bundle.
 COPY ca.pem /etc/ssl/private/
