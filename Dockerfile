@@ -54,7 +54,6 @@ RUN adduser -D -H -g elasticsearch elasticsearch &&\
 	chown -R elasticsearch:elasticsearch /etc/containerpilot &&\
 	$(cat /etc/ssl/private/ca.pem >> /etc/ssl/certs/ca-certificates.crt;exit 0)
 
-#USER elasticsearch
 ENV PATH=$PATH:/opt/elasticsearch/bin
 
 # Add our configuration files and scripts
@@ -69,4 +68,5 @@ ONBUILD COPY logging.yml /opt/elasticsearch/config/logging.yml
 # Put Elasticsearch data on a separate volume to avoid filesystem performance issues with Docker image layers
 VOLUME ["/elasticsearch"]
 
+USER elasticsearch
 CMD ["/usr/local/bin/startup.sh"]

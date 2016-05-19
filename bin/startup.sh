@@ -6,8 +6,6 @@ loge() {
     printf "%s\n" "$@"|awk '{print strftime("%Y/%m/%d %T",systime()),"[ERROR] startup.sh:",$0}'
 }
 
-/usr/local/bin/set-timezone.sh "$TZ"
-
 if [[ -z ${CONSUL} ]]; then
     loge "Missing CONSUL environment variable"
     exit 1
@@ -22,7 +20,7 @@ until [ $n -ge 120 ]; do
 		n=$((n+2))
 	done
 	log "Consul is now available [${n}s], starting up Elasticsearch"
-	su-exec elasticsearch:elasticsearch /opt/containerpilot/containerpilot /opt/elasticsearch/bin/elasticsearch
+	exec /opt/containerpilot/containerpilot /opt/elasticsearch/bin/elasticsearch
 done
 loge "Consul unavailable, aborting"
 exit 1
