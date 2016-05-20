@@ -21,36 +21,81 @@ services:
       - 8500
       - 8501
     env_file: _env_consul
+
+  fabio:
+    image: mterron/fabiolb
+    restart: always
+    mem_limit: 128m
+    ports:
+      - 9998
+      - 9999
+    dns:
+      - 172.19.0.2
+      - 8.8.8.8
+    dns_search:
+      - service.consul
+      - node.consul
+    env_file: _env_consul
+    depends_on:
+      - consul
   # ---------------------------------------------------
-  # This common service definition is the default for nodes that both store
-  # data and act as potential masternodes. It also serves as a template for
-  # master-only, data-only and client ES nodes.
-  elasticsearch:
-    image: mterron/elasticsearch-autopilot
-    labels:
-      - triton.cns.services=elasticsearch-master
+  # The logstash container is the target of Docker log drivers
+  logstash:
+    image: mterron/logstash-autopilot:latest
     mem_limit: 256m
     restart: always
-    ulimits:
-        memlock: 9223372036854775807
-#    depends_on:
-#      - consul
+    labels:
+      - triton.cns.services=logstash
+    depends_on:
+      - elasticsearch-master
+    ports:
+      - 3164
+      - "3164/udp"
+      - 5424
+      - "5424/udp"
+      - 6666
+      - 10514
+      - 12201
+      - 13000
+      - 14000
+      - 24224
+      - 25109
     dns:
-      - 172.20.0.2
+      - 172.19.0.2
+      - 8.8.8.8
     dns_search:
       - service.consul
       - node.consul
     env_file: _env
-    environment:
-      - ES_SERVICE_NAME=elasticsearch-master
-      - ES_NODE_MASTER=true
-      - ES_NODE_DATA=true
+    ports:
+      - 9200
+      - 9300
+
+  # The kibana container
+  kibana:
+    image: mterron/kibana-autopilot:latest
+    mem_limit: 256m
+    restart: always
+    labels:
+      - triton.cns.services=logstash
+    depends_on:
+      - logstash
+    ports:
+      - 5601
+    dns:
+      - 172.19.0.2
+      - 8.8.8.8
+    dns_search:
+      - service.consul
+      - node.consul
+    env_file: _env
 
 
   # ---------------------------------------------------
   # The master-only node serves as the coordinator of the cluster only
-  elasticsearch_master:
+  elasticsearch-master:
     extends:
+      file: ES.yml
       service: elasticsearch
     labels:
       - triton.cns.services=elasticsearch-master
@@ -64,13 +109,14 @@ services:
   # ---------------------------------------------------
   # Data nodes hold data and perform data related operations such as CRUD, 
   # search, and aggregations.
-  elasticsearch_data:
+  elasticsearch-data:
     extends:
+      file: ES.yml
       service: elasticsearch
     labels:
       - triton.cns.services=elasticsearch-data
     depends_on:
-      - elasticsearch_master
+      - elasticsearch-master
     environment:
       - ES_SERVICE_NAME=elasticsearch-data
       - ES_NODE_MASTER=false
@@ -80,14 +126,18 @@ services:
   # Client nodes behaves as a “smart router” and is used to forward 
   # cluster-level requests to the master node and data-related 
   # requests (such as search) to the appropriate data nodes
-  elasticsearch_client:
-    extends:
-      service: elasticsearch
-    labels:
-      - triton.cns.services=elasticsearch-client
-    depends_on:
-      - elasticsearch_data
-    environment:
-      - ES_SERVICE_NAME=elasticsearch-client
-      - ES_NODE_MASTER=false
-      - ES_NODE_DATA=false
+  # elasticsearch-client:
+  #   extends:
+  #     file: ES.yml
+  #     service: elasticsearch
+  #   labels:
+  #     - triton.cns.services=elasticsearch-client
+  #   depends_on:
+  #     - elasticsearch-master
+  #   ports:
+  #     - 9200
+  #     - 9300
+  #   environment:
+  #     - ES_SERVICE_NAME=elasticsearch-client
+  #     - ES_NODE_MASTER=false
+  #     - ES_NODE_DATA=false

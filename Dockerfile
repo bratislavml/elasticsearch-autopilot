@@ -14,11 +14,6 @@ RUN echo http://dl-6.alpinelinux.org/alpine/v3.3/community >> /etc/apk/repositor
 		su-exec \
 		tzdata
 
-# We don't need to expose these ports in order for other containers on Triton
-# to reach this container in the default networking environment, but if we
-# leave this here then we get the ports as well-known environment variables
-# for purposes of linking.
-EXPOSE 9200 9300
 
 WORKDIR /tmp
 # Add Containerpilot and set its configuration path
@@ -39,6 +34,13 @@ RUN mkdir -p /opt &&\
 	mv elasticsearch-${ES_VERSION} /opt/elasticsearch &&\
 	rm -f elasticsearch-${ES_VERSION}.tar.gz
 
+# We don't need to expose these ports in order for other containers on Triton
+# to reach this container in the default networking environment, but if we
+# leave this here then we get the ports as well-known environment variables
+# for purposes of linking.
+EXPOSE 9200 9300
+ENV PATH=$PATH:/opt/elasticsearch/bin
+
 # Copy internal CA certificate bundle.
 COPY ca.pem /etc/ssl/private/
 # Create and take ownership over required directories, update CA
@@ -47,14 +49,15 @@ RUN adduser -D -H -g elasticsearch elasticsearch &&\
 	mkdir -p /elasticsearch/data &&\
 	mkdir /elasticsearch/log &&\
 	chmod -R g+w /elasticsearch &&\
-	chown -R elasticsearch:elasticsearch /elasticsearch &&\
-	chown -R elasticsearch:elasticsearch /opt &&\
 	mkdir -p /etc/containerpilot &&\
 	chmod -R g+w /etc/containerpilot &&\
+	plugin install license &&\
+	plugin install marvel-agent &&\
+	chown -R elasticsearch:elasticsearch /elasticsearch &&\
+	chown -R elasticsearch:elasticsearch /opt &&\
 	chown -R elasticsearch:elasticsearch /etc/containerpilot &&\
 	$(cat /etc/ssl/private/ca.pem >> /etc/ssl/certs/ca-certificates.crt;exit 0)
 
-ENV PATH=$PATH:/opt/elasticsearch/bin
 
 # Add our configuration files and scripts
 COPY bin/* /usr/local/bin/
