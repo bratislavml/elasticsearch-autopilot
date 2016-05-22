@@ -18,3 +18,5 @@ ES_JAVA_OPTS=-XX:-UseGCTaskAffinity -XX:-BindGCTaskThreadsToCPUs -XX:ParallelGCT
 ES_CLUSTER_NAME=ESDEMO
 # Expected number of master nodes for quorum calculations
 ES_CLUSTER_SIZE=3
+# If ENVIRONMENT is prod, ES will lock all memory as per best practice
+# ENVIRONMENT=prod

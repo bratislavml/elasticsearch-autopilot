@@ -26,10 +26,22 @@ replace() {
     REPLACEMENT_PATH_LOGS=$(printf 's/^#.*path\.logs:.*/path.logs: \/elasticsearch\/log/')
     sed -i "${REPLACEMENT_PATH_LOGS}" /opt/elasticsearch/config/elasticsearch.yml
 
+    if [ "$ENVIRONMENT" == "prod" ]; then {
+        REPLACEMENT_BOOTSTRAP_MLOCKALL=$(printf 's/^#.*bootstrap\.mlockall:\s*true/bootstrap.mlockall: true/')
+        sed -i "${REPLACEMENT_BOOTSTRAP_MLOCKALL}" /opt/elasticsearch/config/elasticsearch.yml
+    }
+    fi
+
     REPLACEMENT_NETWORK_HOST=$(printf 's/^#.*network\.host:.*/network.host: _eth0:ipv4_/')
     sed -i "${REPLACEMENT_NETWORK_HOST}" /opt/elasticsearch/config/elasticsearch.yml
 
-    export QUORUM=$(( (ES_CLUSTER_SIZE/2)+1 ))
+    NUM_MASTERS=$(curl -Ls --fail "${CONSUL}/v1/health/service/elasticsearch-master"|jq -r -e '[.[].Service.Address] | unique | length // empty')
+    NEW_QUORUM=$(( (NUM_MASTERS/2)+1 ))
+    QUORUM=$(( (ES_CLUSTER_SIZE/2)+1 )) 
+    if [ "$NEW_QUORUM" -gt "${QUORUM}" ]; then {
+        QUORUM="$NEW_QUORUM" 
+    }
+    fi
     echo "QUORUM IS: $QUORUM"
     REPLACEMENT_ZEN_MIN_NODES=$(printf 's/^#.*discovery\.zen\.minimum_master_nodes:.*/discovery.zen.minimum_master_nodes: %s/' "${QUORUM}")
     sed -i "${REPLACEMENT_ZEN_MIN_NODES}" /opt/elasticsearch/config/elasticsearch.yml
@@ -41,9 +53,9 @@ replace() {
     sed -i "${REPLACEMENT}" /opt/elasticsearch/config/elasticsearch.yml
 }
 
-# get the list of ES master nodes from Consul
+# Get the list of ES master nodes from Consul
 configureMaster() {
-    MASTER=$(curl -Ls --fail "${CONSUL}/v1/health/service/elasticsearch-master?passing"| jq -r -e '[.[].Service.Address]' | tr -d ' \r\n')
+    MASTER=$(curl -Ls --fail "${CONSUL}/v1/health/service/elasticsearch-master"| jq -r -e -c '[.[].Service.Address]')
     if [[ $MASTER != "[]" ]] && [[ -n $MASTER ]]; then
         log "MASTER: $MASTER"
         log "Master found!, joining cluster."
@@ -56,7 +68,7 @@ configureMaster() {
     # if there's no master we fall thru and let the caller figure
     # out what to do next
 }
-
+#------------------------------------------------------------------------------
 # happy path is that there's a master available and we can cluster
 configureMaster
 
@@ -65,7 +77,7 @@ if [ "${ES_NODE_MASTER}" == false ]; then
     log "Client or Data only node, waiting for master"
     # Slow poll instead of spinning (2 query every 1 minutes)
     until configureMaster; do
-        sleep 30
+        sleep 10
     done
 fi
 
@@ -89,5 +101,5 @@ fi
 # retry attempts, we'll assume this is the first master and bootstrap
 # the cluster
 log "MASTER node, bootstrapping..."
-MASTER=127.0.0.1
+MASTER=["127.0.0.1"]
 replace
