@@ -14,7 +14,6 @@ RUN echo http://dl-6.alpinelinux.org/alpine/v3.3/community >> /etc/apk/repositor
 		su-exec \
 		tzdata
 
-
 WORKDIR /tmp
 # Add Containerpilot and set its configuration path
 ENV CONTAINERPILOT_VERSION=2.1.2 \
@@ -34,10 +33,6 @@ RUN mkdir -p /opt &&\
 	mv elasticsearch-${ES_VERSION} /opt/elasticsearch &&\
 	rm -f elasticsearch-${ES_VERSION}.tar.gz
 
-# We don't need to expose these ports in order for other containers on Triton
-# to reach this container in the default networking environment, but if we
-# leave this here then we get the ports as well-known environment variables
-# for purposes of linking.
 EXPOSE 9200 9300
 ENV PATH=$PATH:/opt/elasticsearch/bin
 
@@ -57,13 +52,13 @@ RUN adduser -D -H -g elasticsearch elasticsearch &&\
 	chown -R elasticsearch:elasticsearch /etc/containerpilot &&\
 	$(cat /etc/ssl/private/ca.pem >> /etc/ssl/certs/ca-certificates.crt;exit 0)
 
-
 # Add our configuration files and scripts
 COPY bin/* /usr/local/bin/
 COPY containerpilot.json /etc/containerpilot/containerpilot.json
 COPY logging.yml /opt/elasticsearch/config/logging.yml
 
 # If you build on top of this image, please provide this files
+# If you are using an internal CA
 ONBUILD COPY ca.pem /etc/ssl/private/
 ONBUILD COPY containerpilot.json /etc/containerpilot/containerpilot.json
 ONBUILD COPY logging.yml /opt/elasticsearch/config/logging.yml
