@@ -21,7 +21,7 @@ node.data: ${ES_NODE_DATA}
 path.data: /elasticsearch/data
 path.logs: /elasticsearch/log
 network.host: _eth0:ipv4_
-discovery.zen.minimum_master_nodes: 2
+discovery.zen.minimum_master_nodes: ${QUORUM}
 discovery.zen.ping.multicast.enabled: false
 discovery.zen.ping.unicast.hosts: ["${ES_BOOTSTRAP_HOST}"]
 

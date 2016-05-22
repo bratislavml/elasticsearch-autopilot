@@ -1,11 +1,11 @@
 {
   "consul": "{{ .CONSUL }}",
-  "preStart": "/usr/local/bin/prestart.sh",
   "logging": {
     "level": "INFO",
     "format": "default",
     "output": "stdout"
   },
+  "preStart": "/usr/local/bin/prestart.sh",
   "services": [
     {
       "name": "{{ .ES_SERVICE_NAME }}",
@@ -13,6 +13,13 @@
       "health": "/usr/local/bin/health.sh",
       "poll": 10,
       "ttl": 25
+    }
+  ],
+  "backends": [
+    {
+      "name": "elasticsearch-master",
+      "poll": 30,
+      "onChange": "/usr/local/bin/reconfigure_cluster.sh"
     }
   ]
 }

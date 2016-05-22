@@ -23,13 +23,13 @@ replace() {
     REPLACEMENT_PATH_DATA=$(printf 's/^#.*path\.data:.*/path.data: \/elasticsearch\/data/')
     sed -i "${REPLACEMENT_PATH_DATA}" /opt/elasticsearch/config/elasticsearch.yml
 
-    REPLACEMENT_PATH_LOGS=$(printf 's/^#.*path\.logs:.*/path.logs: \/elasticsearch\/logs/')
+    REPLACEMENT_PATH_LOGS=$(printf 's/^#.*path\.logs:.*/path.logs: \/elasticsearch\/log/')
     sed -i "${REPLACEMENT_PATH_LOGS}" /opt/elasticsearch/config/elasticsearch.yml
 
     REPLACEMENT_NETWORK_HOST=$(printf 's/^#.*network\.host:.*/network.host: _eth0:ipv4_/')
     sed -i "${REPLACEMENT_NETWORK_HOST}" /opt/elasticsearch/config/elasticsearch.yml
 
-    QUORUM=$(( (ES_CLUSTER_SIZE/2)+1 ))
+    export QUORUM=$(( (ES_CLUSTER_SIZE/2)+1 ))
     echo "QUORUM IS: $QUORUM"
     REPLACEMENT_ZEN_MIN_NODES=$(printf 's/^#.*discovery\.zen\.minimum_master_nodes:.*/discovery.zen.minimum_master_nodes: %s/' "${QUORUM}")
     sed -i "${REPLACEMENT_ZEN_MIN_NODES}" /opt/elasticsearch/config/elasticsearch.yml

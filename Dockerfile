@@ -46,8 +46,7 @@ COPY ca.pem /etc/ssl/private/
 # Create and take ownership over required directories, update CA
 RUN adduser -D -H -g elasticsearch elasticsearch &&\
 	adduser elasticsearch elasticsearch &&\
-	mkdir -p /elasticsearch/data &&\
-	mkdir /elasticsearch/log &&\
+	mkdir /elasticsearch/ &&\
 	chmod -R g+w /elasticsearch &&\
 	mkdir -p /etc/containerpilot &&\
 	chmod -R g+w /etc/containerpilot &&\
@@ -66,6 +65,7 @@ COPY logging.yml /opt/elasticsearch/config/logging.yml
 
 # If you build on top of this image, please provide this files
 ONBUILD COPY ca.pem /etc/ssl/private/
+ONBUILD COPY containerpilot.json /etc/containerpilot/containerpilot.json
 ONBUILD COPY logging.yml /opt/elasticsearch/config/logging.yml
 
 # Put Elasticsearch data on a separate volume to avoid filesystem performance issues with Docker image layers
