@@ -57,9 +57,9 @@ COPY bin/* /usr/local/bin/
 COPY containerpilot.json /etc/containerpilot/containerpilot.json
 COPY logging.yml /opt/elasticsearch/config/logging.yml
 
-# If you build on top of this image, please provide this files
 # If you are using an internal CA
 ONBUILD COPY ca.pem /etc/ssl/private/
+# If you build on top of this image, please provide this files
 ONBUILD COPY containerpilot.json /etc/containerpilot/containerpilot.json
 ONBUILD COPY logging.yml /opt/elasticsearch/config/logging.yml
 
