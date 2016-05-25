@@ -26,7 +26,7 @@ RUN	sha1sum -sc containerpilot-${CONTAINERPILOT_VERSION}.sha1.txt &&\
 	rm -f containerpilot-${CONTAINERPILOT_VERSION}.*
 
 # get Elasticsearch release
-ENV ES_VERSION=2.3.2
+ENV ES_VERSION=2.3.3
 ADD https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz /tmp/
 RUN mkdir -p /opt &&\
 	tar xzf elasticsearch-${ES_VERSION}.tar.gz &&\
