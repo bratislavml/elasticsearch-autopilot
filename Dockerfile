@@ -67,4 +67,4 @@ ONBUILD COPY logging.yml /opt/elasticsearch/config/logging.yml
 VOLUME ["/elasticsearch"]
 
 USER elasticsearch
-CMD ["/usr/local/bin/startup.sh"]
+CMD ["/opt/containerpilot/containerpilot","/opt/elasticsearch/bin/elasticsearch"]

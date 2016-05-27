@@ -69,10 +69,33 @@ configureMaster() {
     # out what to do next
 }
 #------------------------------------------------------------------------------
+# Check that CONSUL environment variable exists
+if [[ -z ${CONSUL} ]]; then
+    loge "Missing CONSUL environment variable"
+    exit 1
+fi
+
+# Wait up to 2 minutes for Consul to be available
+log "Waiting for Consul availability..."
+n=0
+until [ $n -ge 120 ]; do
+    until (curl -fsL --connect-timeout 1 "${CONSUL}/v1/status/leader" &> /dev/null); do
+        sleep 2
+        n=$((n+2))
+    done
+    break
+done
+if [ $n -ge 120 ]; then {
+    loge "Consul unavailable, aborting"
+    exit 1
+}
+fi
+
+log "Consul is now available [${n}s], starting up Elasticsearch"
 # happy path is that there's a master available and we can cluster
 configureMaster
 
-# data-only or client nodes can only loop until there's a master available
+# Data-only or client nodes can only wait until there's a master available
 if [ "${ES_NODE_MASTER}" == false ]; then
     log "Client or Data only node, waiting for master"
     # Slow poll instead of spinning (2 query every 1 minutes)
@@ -81,7 +104,7 @@ if [ "${ES_NODE_MASTER}" == false ]; then
     done
 fi
 
-# for a master+data node, we'll retry for 2 minutes to see if there's 
+# A master+data node will retry for 2 minutes to see if there's 
 # another master in the cluster in the process of starting up. But we
 # bail out if we exceed the retries and just bootstrap the cluster
 if [ "${ES_NODE_DATA}" == true ]; then
