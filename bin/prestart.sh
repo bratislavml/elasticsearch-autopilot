@@ -42,7 +42,7 @@ replace() {
         QUORUM="$NEW_QUORUM" 
     }
     fi
-    echo "QUORUM IS: $QUORUM"
+
     REPLACEMENT_ZEN_MIN_NODES=$(printf 's/^#.*discovery\.zen\.minimum_master_nodes:.*/discovery.zen.minimum_master_nodes: %s/' "${QUORUM}")
     sed -i "${REPLACEMENT_ZEN_MIN_NODES}" /opt/elasticsearch/config/elasticsearch.yml
 
@@ -78,12 +78,9 @@ fi
 # Wait up to 2 minutes for Consul to be available
 log "Waiting for Consul availability..."
 n=0
-until [ $n -ge 120 ]; do
-    until (curl -fsL --connect-timeout 1 "${CONSUL}/v1/status/leader" &> /dev/null); do
-        sleep 2
-        n=$((n+2))
-    done
-    break
+until [ $n -ge 120 ]||(curl -fsL --connect-timeout 1 "${CONSUL}/v1/status/leader" &> /dev/null); do
+    sleep 2
+    n=$((n+2))
 done
 if [ $n -ge 120 ]; then {
     loge "Consul unavailable, aborting"
@@ -111,7 +108,7 @@ if [ "${ES_NODE_DATA}" == true ]; then
     log "Master+Data node, waiting up to 120s for master"
     n=0
     until [ $n -ge 120 ]; do
-        until (curl -Ls --fail "${CONSUL}/v1/health/service/elasticsearch-master?passing" | jq -r -e '.[0].ServiceAddress' >/dev/null); do
+        until (curl -Ls --fail "${CONSUL}/v1/health/service/elasticsearch-master?passing" | jq -r -e '.[0].Service.Address' >/dev/null); do
             sleep 5
             n=$((n+5))
         done
