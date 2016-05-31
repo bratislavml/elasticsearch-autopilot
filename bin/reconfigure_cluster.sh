@@ -1,6 +1,6 @@
 #!/bin/bash
 log() {
-    printf "[INFO] reconfigure-cluster: %s\n" "$@"
+	printf "[INFO] reconfigure-cluster: %s\n" "$@"
 }
 
 # Prevent multiple events by waiting up to 10 seconds to quiesce changes
