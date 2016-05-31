@@ -3,7 +3,7 @@ TZ=Pacific/Auckland
 
 # Consul
 #
-CONSUL=https://consul.service.consul:8501
+CONSUL_HTTP_ADDR=https://consul.service.consul:8501
 CLUSTER_NAME=demo-autopilot
 
 # Elasticsearch

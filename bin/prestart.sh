@@ -35,14 +35,13 @@ replace() {
     REPLACEMENT_NETWORK_HOST=$(printf 's/^#.*network\.host:.*/network.host: _eth0:ipv4_/')
     sed -i "${REPLACEMENT_NETWORK_HOST}" /opt/elasticsearch/config/elasticsearch.yml
 
-    NUM_MASTERS=$(curl -Ls --fail "${CONSUL}/v1/health/service/elasticsearch-master"|jq -r -e '[.[].Service.Address] | unique | length // empty')
+    NUM_MASTERS=$(curl -Ls --fail "${CONSUL_HTTP_ADDR}/v1/health/service/elasticsearch-master"|jq -r -e '[.[].Service.Address] | unique | length // empty')
     NEW_QUORUM=$(( (NUM_MASTERS/2)+1 ))
     QUORUM=$(( (ES_CLUSTER_SIZE/2)+1 )) 
     if [ "$NEW_QUORUM" -gt "${QUORUM}" ]; then {
         QUORUM="$NEW_QUORUM" 
     }
     fi
-
     REPLACEMENT_ZEN_MIN_NODES=$(printf 's/^#.*discovery\.zen\.minimum_master_nodes:.*/discovery.zen.minimum_master_nodes: %s/' "${QUORUM}")
     sed -i "${REPLACEMENT_ZEN_MIN_NODES}" /opt/elasticsearch/config/elasticsearch.yml
 
@@ -55,7 +54,7 @@ replace() {
 
 # Get the list of ES master nodes from Consul
 configureMaster() {
-    MASTER=$(curl -Ls --fail "${CONSUL}/v1/health/service/elasticsearch-master"| jq -r -e -c '[.[].Service.Address]')
+    MASTER=$(curl -Ls --fail "${CONSUL_HTTP_ADDR}/v1/health/service/elasticsearch-master"| jq -r -e -c '[.[].Service.Address]')
     if [[ $MASTER != "[]" ]] && [[ -n $MASTER ]]; then
         log "MASTER: $MASTER"
         log "Master found!, joining cluster."
@@ -69,16 +68,16 @@ configureMaster() {
     # out what to do next
 }
 #------------------------------------------------------------------------------
-# Check that CONSUL environment variable exists
-if [[ -z ${CONSUL} ]]; then
-    loge "Missing CONSUL environment variable"
+# Check that CONSUL_HTTP_ADDR environment variable exists
+if [[ -z ${CONSUL_HTTP_ADDR} ]]; then
+    loge "Missing CONSUL_HTTP_ADDR environment variable"
     exit 1
 fi
 
 # Wait up to 2 minutes for Consul to be available
 log "Waiting for Consul availability..."
 n=0
-until [ $n -ge 120 ]||(curl -fsL --connect-timeout 1 "${CONSUL}/v1/status/leader" &> /dev/null); do
+until [ $n -ge 120 ]||(curl -fsL --connect-timeout 1 "${CONSUL_HTTP_ADDR}/v1/status/leader" &> /dev/null); do
     sleep 2
     n=$((n+2))
 done
@@ -108,7 +107,7 @@ if [ "${ES_NODE_DATA}" == true ]; then
     log "Master+Data node, waiting up to 120s for master"
     n=0
     until [ $n -ge 120 ]; do
-        until (curl -Ls --fail "${CONSUL}/v1/health/service/elasticsearch-master?passing" | jq -r -e '.[0].Service.Address' >/dev/null); do
+        until (curl -Ls --fail "${CONSUL_HTTP_ADDR}/v1/health/service/elasticsearch-master?passing" | jq -r -e '.[0].Service.Address' >/dev/null); do
             sleep 5
             n=$((n+5))
         done
