@@ -26,7 +26,7 @@ replace() {
 	REPLACEMENT_PATH_LOGS=$(printf 's/^#.*path\.logs:.*/path.logs: \/elasticsearch\/log/')
 	sed -i "${REPLACEMENT_PATH_LOGS}" /opt/elasticsearch/config/elasticsearch.yml
 
-	if [ "$ENVIRONMENT" == "prod" ]; then {
+	if [ "$ES_ENVIRONMENT" == "prod" ]; then {
 		REPLACEMENT_BOOTSTRAP_MLOCKALL=$(printf 's/^#.*bootstrap\.mlockall:\s*true/bootstrap.mlockall: true/')
 		sed -i "${REPLACEMENT_BOOTSTRAP_MLOCKALL}" /opt/elasticsearch/config/elasticsearch.yml
 	}
