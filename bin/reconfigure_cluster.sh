@@ -6,7 +6,7 @@ log() {
 # Prevent multiple events by waiting up to 10 seconds to quiesce changes
 sleep $(( (RANDOM % 10) + 1 ))s
 
-NUM_MASTERS=$(curl -Ls --fail "${CONSUL_HTTP_ADDR}/v1/health/service/elasticsearch-master"|jq -r -e '[.[].Service.Address] | unique | length')
+NUM_MASTERS=$(curl -E /etc/tls/client_certificate.crt -Ls --fail "${CONSUL_HTTP_ADDR}/v1/health/service/elasticsearch-master"|jq -r -e '[.[].Service.Address] | unique | length')
 NEW_QUORUM=$(( (NUM_MASTERS/2)+1 ))
 
 OLD_QUORUM=$(curl -s http://elasticsearch-master:9200/_cluster/settings|jq -r -e '.persistent.discovery.zen.minimum_master_nodes // empty')

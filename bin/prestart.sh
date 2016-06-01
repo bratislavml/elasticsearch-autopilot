@@ -6,8 +6,8 @@ loge() {
 	printf "[ERROR] preStart: %s\n" "$@"
 }
 
-# update config file
-replace() {
+# Update configuration file
+update_ES_configuration() {
 	REPLACEMENT_CLUSTER=$(printf 's/^#.*cluster\.name:.*/cluster.name: %s/' "${ES_CLUSTER_NAME}")
 	sed -i "${REPLACEMENT_CLUSTER}" /opt/elasticsearch/config/elasticsearch.yml
 
@@ -35,7 +35,7 @@ replace() {
 	REPLACEMENT_NETWORK_HOST=$(printf 's/^#.*network\.host:.*/network.host: _eth0:ipv4_/')
 	sed -i "${REPLACEMENT_NETWORK_HOST}" /opt/elasticsearch/config/elasticsearch.yml
 
-	NUM_MASTERS=$(curl -Ls --fail "${CONSUL_HTTP_ADDR}/v1/health/service/elasticsearch-master"|jq -r -e '[.[].Service.Address] | unique | length // empty')
+	NUM_MASTERS=$(curl -E /etc/tls/client_certificate.crt -Ls --fail "${CONSUL_HTTP_ADDR}/v1/health/service/elasticsearch-master"|jq -r -e '[.[].Service.Address] | unique | length // empty')
 	NEW_QUORUM=$(( (NUM_MASTERS/2)+1 ))
 	QUORUM=$(( (ES_CLUSTER_SIZE/2)+1 )) 
 	if [ "$NEW_QUORUM" -gt "${QUORUM}" ]; then {
@@ -53,19 +53,17 @@ replace() {
 }
 
 # Get the list of ES master nodes from Consul
-configureMaster() {
-	MASTER=$(curl -Ls --fail "${CONSUL_HTTP_ADDR}/v1/health/service/elasticsearch-master"| jq -r -e -c '[.[].Service.Address]')
+get_ES_Master() {
+	MASTER=$(curl -E /etc/tls/client_certificate.crt -Ls --fail "${CONSUL_HTTP_ADDR}/v1/health/service/elasticsearch-master"| jq -r -e -c '[.[].Service.Address]')
 	if [[ $MASTER != "[]" ]] && [[ -n $MASTER ]]; then
 		log "MASTER: $MASTER"
 		log "Master found!, joining cluster."
-		replace
+		update_ES_configuration
 		exit 0
 	else
 		unset MASTER
 		return 1
 	fi
-	# if there's no master we fall thru and let the caller figure
-	# out what to do next
 }
 #------------------------------------------------------------------------------
 # Check that CONSUL_HTTP_ADDR environment variable exists
@@ -77,7 +75,7 @@ fi
 # Wait up to 2 minutes for Consul to be available
 log "Waiting for Consul availability..."
 n=0
-until [ $n -ge 120 ]||(curl -fsL --connect-timeout 1 "${CONSUL_HTTP_ADDR}/v1/status/leader" &> /dev/null); do
+until [ $n -ge 120 ]||(curl -E /etc/tls/client_certificate.crt -fsL --connect-timeout 1 "${CONSUL_HTTP_ADDR}/v1/status/leader" &> /dev/null); do
 	sleep 2
 	n=$((n+2))
 done
@@ -88,14 +86,12 @@ if [ $n -ge 120 ]; then {
 fi
 
 log "Consul is now available [${n}s], starting up Elasticsearch"
-# happy path is that there's a master available and we can cluster
-configureMaster
+get_ES_Master
 
 # Data-only or client nodes can only wait until there's a master available
 if [ "${ES_NODE_MASTER}" == false ]; then
 	log "Client or Data only node, waiting for master"
-	# Slow poll instead of spinning (2 query every 1 minutes)
-	until configureMaster; do
+	until get_ES_Master; do
 		sleep 10
 	done
 fi
@@ -107,18 +103,18 @@ if [ "${ES_NODE_DATA}" == true ]; then
 	log "Master+Data node, waiting up to 120s for master"
 	n=0
 	until [ $n -ge 120 ]; do
-		until (curl -Ls --fail "${CONSUL_HTTP_ADDR}/v1/health/service/elasticsearch-master?passing" | jq -r -e '.[0].Service.Address' >/dev/null); do
+		until (curl -E /etc/tls/client_certificate.crt -Ls --fail "${CONSUL_HTTP_ADDR}/v1/health/service/elasticsearch-master?passing" | jq -r -e '.[0].Service.Address' >/dev/null); do
 			sleep 5
 			n=$((n+5))
 		done
-		configureMaster
+		get_ES_Master
 	done
 	log "Master not found. Proceed as master"
 fi
 
-# for a master-only node or master+data node that's exceeded the
-# retry attempts, we'll assume this is the first master and bootstrap
+# for a master-only node (or master+data node that has exceeded the
+# retry attempts), we'll assume this is the first master and bootstrap
 # the cluster
 log "MASTER node, bootstrapping..."
 MASTER=["127.0.0.1"]
-replace
+update_ES_configuration
