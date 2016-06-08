@@ -1,8 +1,11 @@
-#!/bin/bash
+#!/bin/ash
 log() {
 	printf "[INFO] reconfigure-cluster: %s\n" "$@"
 }
-
+logd() {
+	printf "[DEBUG] reconfigure-cluster: %s\n" "$@"
+}
+###############################################################################
 # Prevent multiple events by waiting up to 10 seconds to quiesce changes
 sleep $(( (RANDOM % 10) + 1 ))s
 
@@ -18,14 +21,13 @@ if [ -z "$OLD_QUORUM" ]; then {
 	exit 0
 }
 fi
-# DEBUG
-#log "OLD QUORUM is: ${OLD_QUORUM}, NEW QUORUM is: ${NEW_QUORUM}"
-if [ "$NEW_QUORUM" != "${OLD_QUORUM}" ]; then {
+
+if [ "$NEW_QUORUM" -ne "${OLD_QUORUM}" ]; then {
 	if [ "$NEW_QUORUM" -gt "${OLD_QUORUM}" ]; then
 		log "Scaling up Elasticsearch cluster ${ES_CLUSTER_NAME}. Setting quorum to ${NEW_QUORUM} from ${OLD_QUORUM}"
-		curl -s -XPUT http://elasticsearch-master:9200/_cluster/settings -d '{"persistent" : {"discovery.zen.minimum_master_nodes" : "'"${NEW_QUORUM}"'" }}'
+		curl -s -XPUT http://elasticsearch-master.service.consul:9200/_cluster/settings -d '{"persistent" : {"discovery.zen.minimum_master_nodes" : "'"${NEW_QUORUM}"'" }}'
 	else {
-		log "Automatic scaling down is not supported to prevent split brain scenarios, please set the new quorum manually by: PUT '{\"persistent\" : {\"discovery.zen.minimum_master_nodes\" : \"NEW QUORUM\" }}'"
+		log "Automatic scaling down is not supported to prevent split brain scenarios, please set the new quorum manually by: PUT '{\"persistent\" : {\"discovery.zen.minimum_master_nodes\" : \"${NEW_QUORUM}\" }}'"
 	}
 	fi
 }
