@@ -47,7 +47,6 @@ c561a6dc0880        mterron/consul-betterscratch      elk_consul_1
 ##### Check Consul cluster status
 ```bash
 $ docker-compose exec consul consul members
-Node          Address          Status  Type    Build  Protocol  DC
 Node          Address           Status  Type    Build  Protocol  DC
 03cdc87dd763  172.21.0.9:8301   alive   server  0.6.4  2         demodc
 38414635a52b  172.21.0.10:8301  alive   server  0.6.4  2         demodc
