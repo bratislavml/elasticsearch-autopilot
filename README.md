@@ -87,4 +87,15 @@ You can access Kibana navigating http://HOST_IP:9999
 ![Kibana](http://s33.postimg.org/79avoe9n3/Captura_de_pantalla_2016_06_09_a_las_1_32_19_p.png)
 
 Also the Consul UI is available using https and a client certificate (an example cert is on the repository) by browsing to https://HOST_IP on a random mapped port. Look for port 8501 mapping in docker ps.
+```bash
+~/elasticsearch-autopilot/composition$ docker-compose -pelk ps
+Name          Command           State   Ports
+-------------------------------------------------------------------------------------------
+elk_consul_1  /bin/startup.sh   Up      53/tcp, 53/udp, 8300/tcp, 8301/tcp,
+                                        8301/udp, 8302/tcp, 8302/udp,
+                                        8400/tcp, 8500/tcp,
+  >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  0.0.0.0:32783->8501/tcp, 
+                                        8600/tcp, 8600/udp
+```
+So in this example, we'll browse to https://HOST_IP:32783
 ![Consul](http://s33.postimg.org/kwzbfkx8v/Captura_de_pantalla_2016_06_09_a_las_1_30_54_p.png)
