@@ -82,5 +82,9 @@ cc5bd4b1f692  172.21.0.6:8301   alive   client  0.6.4  2         demodc
 ```
 
 ##### Let's get some more details on the cluster:
-The composition logs are redirected to Logstash and stored in Elasticsearch. You can access Kibana navigating http://HOST_IP:9999
+The composition logs are redirected to Logstash and stored in Elasticsearch. 
+You can access Kibana navigating http://HOST_IP:9999
+![Kibana](http://s33.postimg.org/79avoe9n3/Captura_de_pantalla_2016_06_09_a_las_1_32_19_p.png)
 
+Also the Consul UI is available using https and a client certificate (an example cert is on the repository) by browsing to https://HOST_IP on a random mapped port. Look for port 8501 mapping in docker ps.
+![Consul](http://s33.postimg.org/kwzbfkx8v/Captura_de_pantalla_2016_06_09_a_las_1_30_54_p.png)
