@@ -2,7 +2,7 @@
 "data_dir": "/data",
 "disable_update_check": true,
 "disable_remote_exec": true,
-"log_level": "ERR",
+"log_level": "warn",
 
 "cert_file": "/etc/tls/client_certificate.pem",
 "key_file": "/etc/tls/client_certificate.key",
