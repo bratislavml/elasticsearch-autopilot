@@ -12,13 +12,14 @@ RUN apk -f -q --progress --no-cache upgrade &&\
 		openssl \
 		tzdata 
 
-ENV CONTAINERPILOT_VERSION=2.2.0 \
+ENV CONTAINERPILOT_VERSION=2.3.0 \
 	CONTAINERPILOT=file:///etc/containerpilot/containerpilot.json \
-	CONSUL_VERSION=0.6.4
+	CONSUL_VERSION=0.6.4 \
+	S6_VERSION=1.18.1.3
 
 WORKDIR /tmp
 RUN echo "Downloading S6 Overlay" &&\
-	curl -LO# https://github.com/just-containers/s6-overlay/releases/download/v1.17.2.0/s6-overlay-amd64.tar.gz &&\
+	curl -LO# https://github.com/just-containers/s6-overlay/releases/download/v${S6_VERSION}/s6-overlay-amd64.tar.gz &&\
 	gunzip -c /tmp/s6-overlay-amd64.tar.gz | tar -xf - -C / &&\
 	rm -f s6-overlay-amd64.tar.gz &&\
 	echo "Downloading Containerpilot" &&\
