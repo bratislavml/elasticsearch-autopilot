@@ -14,7 +14,7 @@ RUN apk -f -q --progress --no-cache upgrade &&\
 
 ENV CONTAINERPILOT_VERSION=2.3.0 \
 	CONTAINERPILOT=file:///etc/containerpilot/containerpilot.json \
-	CONSUL_VERSION=0.6.4 \
+	CONSUL_VERSION=0.7.0 \
 	S6_VERSION=1.18.1.3
 
 WORKDIR /tmp
@@ -51,7 +51,7 @@ RUN echo "Downloading S6 Overlay" &&\
 	chown -R consul: /etc/consul/ &&\
 	chmod +x /bin/*
 
-ENV	ES_VERSION=2.3.3 \
+ENV	ES_VERSION=2.3.4 \
 	PATH=$PATH:/opt/elasticsearch/bin
 
 EXPOSE 9200 9300 8301
