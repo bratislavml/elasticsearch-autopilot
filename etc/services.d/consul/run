@@ -9,7 +9,6 @@ loge() {
 	log "ERR·$@"
 }
 ###################################################################################################
-logi "Starting up consul"
 # ACL Datacenter configuration
 if [ -z "$CONSUL_ACL_DC" ]; then
 	logi "ACL Datacenter not defined, defaulting to $CONSUL_DC_NAME"
