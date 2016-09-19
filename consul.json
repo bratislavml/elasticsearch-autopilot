@@ -4,6 +4,7 @@
 "disable_remote_exec": true,
 "log_level": "warn",
 
+"acl_datacenter": "",
 "cert_file": "/etc/tls/client_certificate.pem",
 "key_file": "/etc/tls/client_certificate.key",
 "ca_file": "/etc/ssl/private/ca.pem",

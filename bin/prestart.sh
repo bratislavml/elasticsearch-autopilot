@@ -56,8 +56,7 @@ update_ES_configuration() {
 get_ES_Master() {
 	MASTER=$(curl -E /etc/tls/client_certificate.crt -Ls --fail "${CONSUL_HTTP_ADDR}/v1/health/service/elasticsearch-master"| jq -r -e -c '[.[].Service.Address]')
 	if [[ $MASTER != "[]" ]] && [[ -n $MASTER ]]; then
-		log "MASTER: $MASTER"
-		log "Master found!, joining cluster."
+		log "Master found ${MASTER}, joining cluster."
 		update_ES_configuration
 		exit 0
 	else
@@ -94,27 +93,28 @@ if [ "${ES_NODE_MASTER}" == false ]; then
 	until get_ES_Master; do
 		sleep 10
 	done
-fi
-
-# A master+data node will retry for 2 minutes to see if there's 
-# another master in the cluster in the process of starting up. But we
-# bail out if we exceed the retries and just bootstrap the cluster
-if [ "${ES_NODE_DATA}" == true ]; then
-	log "Master+Data node, waiting up to 120s for master"
-	n=0
-	until [ $n -ge 120 ]; do
-		until (curl -E /etc/tls/client_certificate.crt -Ls --fail "${CONSUL_HTTP_ADDR}/v1/health/service/elasticsearch-master?passing" | jq -r -e '.[0].Service.Address' >/dev/null); do
-			sleep 5
-			n=$((n+5))
+else 
+	# A master+data node will retry for 2 minutes to see if there's 
+	# another master in the cluster in the process of starting up. But we
+	# bail out if we exceed the retries and just bootstrap the cluster
+	if [ "${ES_NODE_DATA}" == true ]; then
+		log "Master+Data node, waiting up to 120s for master"
+		n=0
+		until [ $n -ge 120 ]; do
+			until (curl -E /etc/tls/client_certificate.crt -Ls --fail "${CONSUL_HTTP_ADDR}/v1/health/service/elasticsearch-master?passing" | jq -r -e '.[0].Service.Address' 
+>/dev/null); do
+				sleep 5
+				n=$((n+5))
+			done
+			get_ES_Master
 		done
-		get_ES_Master
-	done
-	log "Master not found. Proceed as master"
+		log "Master not found. Proceed as master"
+	fi
+	# for a master-only node (or master+data node that has exceeded the
+	# retry attempts), we'll assume this is the first master and bootstrap
+	# the cluster
+	log "MASTER node, bootstrapping..."
+	MASTER=["127.0.0.1"]
+	update_ES_configuration
 fi
 
-# for a master-only node (or master+data node that has exceeded the
-# retry attempts), we'll assume this is the first master and bootstrap
-# the cluster
-log "MASTER node, bootstrapping..."
-MASTER=["127.0.0.1"]
-update_ES_configuration
