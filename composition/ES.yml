@@ -11,7 +11,7 @@ services:
     image: mterron/elasticsearch-autopilot
     labels:
       - triton.cns.services=elasticsearch-master
-    mem_limit: 256m
+    mem_limit: 512m
     cap_drop:
       - ALL
     cap_add:
@@ -27,6 +27,7 @@ services:
       - 9200
       - 9300
     dns:
+      - 127.0.0.1
       - 172.21.0.2
     dns_search:
       - service.consul
