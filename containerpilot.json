@@ -12,14 +12,16 @@
       "port": 9300,
       "health": "/usr/local/bin/health.sh",
       "poll": 10,
-      "ttl": 25
+      "ttl": 30,
+      "timeout": "5s"
     }
   ],
   "backends": [
     {
       "name": "elasticsearch-master",
       "poll": 30,
-      "onChange": "/usr/local/bin/reconfigure_cluster.sh"
+      "onChange": "/usr/local/bin/reconfigure_cluster.sh",
+      "timeout": "10s"
     }
   ]
 }
