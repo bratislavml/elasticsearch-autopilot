@@ -19,7 +19,5 @@ ES_JAVA_OPTS=-Djava.security.egd=file:/dev/./urandom -XX:-UseGCTaskAffinity -XX:
 # ES_HEAP_NEWSIZE # optional override
 # ES_DIRECT_SIZE  # optional override
 ES_CLUSTER_NAME=ESDEMO
-# Expected number of master nodes for quorum calculations
-ES_CLUSTER_SIZE=3
 # If ENVIRONMENT is prod, ES will lock all memory as per best practice
 ES_ENVIRONMENT=dev
