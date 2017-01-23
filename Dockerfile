@@ -1,11 +1,9 @@
-FROM alpine:3.5
+FROM elasticsearch:alpine
 
 ENV CONTAINERPILOT_VERSION=2.6.0 \
 	CONTAINERPILOT=file:///etc/containerpilot/containerpilot.json \
 	CONSUL_VERSION=0.7.2 \
 	S6_VERSION=1.18.1.3 \
-	ES_VERSION=2.4.4 \
-	PATH=$PATH:/opt/elasticsearch/bin
 
 
 EXPOSE 9200 9300 8301
@@ -15,12 +13,9 @@ RUN	apk -f --progress --no-cache upgrade &&\
 	apk -f --progress --no-cache add \
 		bash \
 		curl \
-		ca-certificates \
 		dnsmasq \
 		jq \
-		openssl \
 		tzdata 
-RUN apk --progress --no-cache add openjdk8-jre-base
 
 # Copy internal CA certificate bundle.
 COPY ca.pem /etc/ssl/private/
@@ -45,7 +40,6 @@ COPY consul.json /etc/consul/
 # If you are using an internal CA
 ONBUILD COPY ca.pem /etc/ssl/private/
 ONBUILD COPY containerpilot.json /etc/containerpilot/containerpilot.json
-ONBUILD COPY logging.yml /opt/elasticsearch/config/logging.yml
 ONBUILD COPY consul.json /etc/consul/
 
 WORKDIR /tmp
@@ -81,34 +75,9 @@ RUN echo "Downloading S6 Overlay" &&\
 	chmod 770 /etc/consul &&\
 	chown -R consul: /etc/consul/ &&\
 	chmod +x /bin/* &&\
-# Download Elasticsearch release
-	echo "Downloading Elasticsearch" &&\
-	curl -LO# https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/${ES_VERSION}/elasticsearch-${ES_VERSION}.tar.gz &&\
-	mkdir -p /opt/elasticsearch &&\
-	tar xzf elasticsearch-${ES_VERSION}.tar.gz &&\
-	mv elasticsearch-${ES_VERSION}/* /opt/elasticsearch/ &&\
-	rm -rf /tmp/* &&\
-# Elasticsearch user
-	adduser -D -H -g elasticsearch elasticsearch &&\
-	adduser elasticsearch elasticsearch &&\
-# Create Elasticsearch data directory
-	mkdir /elasticsearch/ &&\
-	chmod -R g+w /elasticsearch &&\
-	mkdir -p /etc/containerpilot &&\
-	chmod -R g+w /etc/containerpilot &&\
-	plugin install license &&\
-	plugin install marvel-agent &&\
-	chown -R elasticsearch:elasticsearch /elasticsearch &&\
-	chown -R elasticsearch:elasticsearch /opt &&\
-	chown -R elasticsearch:elasticsearch /etc/containerpilot &&\
 	cat /etc/ssl/private/ca.pem >> /etc/ssl/certs/ca-certificates.crt
 
-COPY logging.yml /opt/elasticsearch/config/logging.yml
-
-# Put Elasticsearch data on a separate volume to avoid filesystem performance issues with Docker image layers
-VOLUME ["/elasticsearch"]
 # Put Consul data on a separate volume to avoid filesystem performance issues with Docker image layers
 VOLUME ["/data"]
 
 ENTRYPOINT ["/init"]
-
