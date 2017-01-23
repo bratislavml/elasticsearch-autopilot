@@ -35,7 +35,7 @@ fi
 # Update config file
 MASTER=$(curl -E /etc/tls/client_certificate.crt -Ls --fail "${CONSUL_HTTP_ADDR}/v1/health/service/elasticsearch-master"|jq -cre '[.[].Service.Address]'| jq -cre 'unique | [.[]+":9300"]')
 REPLACEMENT_ZEN_UNICAST_HOSTS="s/^discovery\.zen\.ping\.unicast\.hosts.*/discovery.zen.ping.unicast.hosts: ${MASTER}/"
-sed -i "${REPLACEMENT_ZEN_UNICAST_HOSTS}" /opt/elasticsearch/config/elasticsearch.yml
+sed -i "${REPLACEMENT_ZEN_UNICAST_HOSTS}" /usr/share/elasticsearch/config/elasticsearch.yml
 
 
 if [ "$NEW_QUORUM" -ne "${OLD_QUORUM}" ]; then
