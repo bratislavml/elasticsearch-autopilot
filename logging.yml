@@ -1,7 +1,0 @@
-rootLogger: WARN,console
-appender:
-  console:
-    type: console
-    layout:
-      type: consolePattern
-      conversionPattern: "%d{ISO8601} [%p] %c: %m%n"

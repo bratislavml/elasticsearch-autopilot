@@ -3,11 +3,11 @@ FROM elasticsearch:alpine
 ENV CONTAINERPILOT_VERSION=2.6.0 \
 	CONTAINERPILOT=file:///etc/containerpilot/containerpilot.json \
 	CONSUL_VERSION=0.7.2 \
-	S6_VERSION=1.18.1.3 \
+	S6_VERSION=1.18.1.3
 
 
 EXPOSE 9200 9300 8301
-	
+
 # Alpine packages
 RUN	apk -f --progress --no-cache upgrade &&\
 	apk -f --progress --no-cache add \

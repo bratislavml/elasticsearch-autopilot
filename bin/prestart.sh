@@ -9,39 +9,39 @@ loge() {
 # Update configuration file
 update_ES_configuration() {
 	REPLACEMENT_CLUSTER="s/^#.*cluster\.name:.*/cluster.name: ${ES_CLUSTER_NAME}/"
-	sed -i "${REPLACEMENT_CLUSTER}" /opt/elasticsearch/config/elasticsearch.yml
+	sed -i "${REPLACEMENT_CLUSTER}" /usr/share/elasticsearch/config/elasticsearch.yml
 
 
 	REPLACEMENT_NAME="s/^#.*node\.name:.*/node.name: ${HOSTNAME}/"
-	sed -i "${REPLACEMENT_NAME}" /opt/elasticsearch/config/elasticsearch.yml
+	sed -i "${REPLACEMENT_NAME}" /usr/share/elasticsearch/config/elasticsearch.yml
 
 
 	#REPLACEMENT_NODE_MASTER="s/^#.*node\.master:.*/node.master: ${ES_NODE_MASTER}/"
-	#sed -i "${REPLACEMENT_NODE_MASTER}" /opt/elasticsearch/config/elasticsearch.yml
-	printf "node.master: ${ES_NODE_MASTER}\n" >> /opt/elasticsearch/config/elasticsearch.yml
+	#sed -i "${REPLACEMENT_NODE_MASTER}" /usr/share/elasticsearch/config/elasticsearch.yml
+	printf "node.master: ${ES_NODE_MASTER}\n" >> /usr/share/elasticsearch/config/elasticsearch.yml
 
 
 	#REPLACEMENT_NODE_DATA="s/^#.*node\.data:.*/node.data: ${ES_NODE_DATA}/"
-	#sed -i "${REPLACEMENT_NODE_DATA}" /opt/elasticsearch/config/elasticsearch.yml
-	printf "node.data: ${ES_NODE_DATA}\n" >> /opt/elasticsearch/config/elasticsearch.yml
+	#sed -i "${REPLACEMENT_NODE_DATA}" /usr/share/elasticsearch/config/elasticsearch.yml
+	printf "node.data: ${ES_NODE_DATA}\n" >> /usr/share/elasticsearch/config/elasticsearch.yml
 
 
 	REPLACEMENT_PATH_DATA='s/^#.*path\.data:.*/path.data: \/elasticsearch\/data/'
-	sed -i "${REPLACEMENT_PATH_DATA}" /opt/elasticsearch/config/elasticsearch.yml
+	sed -i "${REPLACEMENT_PATH_DATA}" /usr/share/elasticsearch/config/elasticsearch.yml
 
 
 	REPLACEMENT_PATH_LOGS='s/^#.*path\.logs:.*/path.logs: \/elasticsearch\/log/'
-	sed -i "${REPLACEMENT_PATH_LOGS}" /opt/elasticsearch/config/elasticsearch.yml
+	sed -i "${REPLACEMENT_PATH_LOGS}" /usr/share/elasticsearch/config/elasticsearch.yml
 
 
 	if [ "$ES_ENVIRONMENT" = "prod" ]; then
 		REPLACEMENT_BOOTSTRAP_MLOCKALL='s/^#.*bootstrap\.mlockall:\s*true/bootstrap.mlockall: true/'
-		sed -i "${REPLACEMENT_BOOTSTRAP_MLOCKALL}" /opt/elasticsearch/config/elasticsearch.yml
+		sed -i "${REPLACEMENT_BOOTSTRAP_MLOCKALL}" /usr/share/elasticsearch/config/elasticsearch.yml
 	fi
 
 
 	REPLACEMENT_NETWORK_HOST='s/^#.*network\.host:.*/network.host: _eth0:ipv4_/'
-	sed -i "${REPLACEMENT_NETWORK_HOST}" /opt/elasticsearch/config/elasticsearch.yml
+	sed -i "${REPLACEMENT_NETWORK_HOST}" /usr/share/elasticsearch/config/elasticsearch.yml
 
 
 	NUM_MASTERS=$(echo $MASTER| jq -r -e 'unique | length')
@@ -55,19 +55,19 @@ update_ES_configuration() {
 		QUORUM="$NEW_QUORUM"
 	fi
 	REPLACEMENT_ZEN_MIN_NODES="s/^#.*discovery\.zen\.minimum_master_nodes:.*/discovery.zen.minimum_master_nodes: ${QUORUM}/"
-	sed -i "${REPLACEMENT_ZEN_MIN_NODES}" /opt/elasticsearch/config/elasticsearch.yml
+	sed -i "${REPLACEMENT_ZEN_MIN_NODES}" /usr/share/elasticsearch/config/elasticsearch.yml
 
 
 	REPLACEMENT_ZEN_MCAST='s/^#.*discovery\.zen\.ping\.multicast\.enabled:.*/discovery.zen.ping.multicast.enabled: false/'
-	sed -i "${REPLACEMENT_ZEN_MCAST}" /opt/elasticsearch/config/elasticsearch.yml
+	sed -i "${REPLACEMENT_ZEN_MCAST}" /usr/share/elasticsearch/config/elasticsearch.yml
 
 
 	MASTER=$(echo $MASTER | jq -e -r -c 'unique | [.[]+":9300"]')
 	REPLACEMENT_ZEN_UNICAST_HOSTS="s/^#.*discovery\.zen\.ping\.unicast\.hosts.*/discovery.zen.ping.unicast.hosts: ${MASTER}/"
-	sed -i "${REPLACEMENT_ZEN_UNICAST_HOSTS}" /opt/elasticsearch/config/elasticsearch.yml
+	sed -i "${REPLACEMENT_ZEN_UNICAST_HOSTS}" /usr/share/elasticsearch/config/elasticsearch.yml
 
 
-#	printf "discovery.zen.ping.retries: 6\n" >> /opt/elasticsearch/config/elasticsearch.yml
+#	printf "discovery.zen.ping.retries: 6\n" >> /usr/share/elasticsearch/config/elasticsearch.yml
 }
 
 # Get the list of ES master nodes from Consul
