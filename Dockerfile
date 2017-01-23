@@ -1,4 +1,4 @@
-FROM alpine:3.4
+FROM alpine:3.5
 
 ENV CONTAINERPILOT_VERSION=2.6.0 \
 	CONTAINERPILOT=file:///etc/containerpilot/containerpilot.json \
