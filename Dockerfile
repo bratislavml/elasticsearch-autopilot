@@ -1,10 +1,10 @@
 FROM alpine:3.4
 
-ENV CONTAINERPILOT_VERSION=2.3.0 \
+ENV CONTAINERPILOT_VERSION=2.6.0 \
 	CONTAINERPILOT=file:///etc/containerpilot/containerpilot.json \
-	CONSUL_VERSION=0.7.0 \
+	CONSUL_VERSION=0.7.2 \
 	S6_VERSION=1.18.1.3 \
-	ES_VERSION=2.3.4 \
+	ES_VERSION=2.4.4 \
 	PATH=$PATH:/opt/elasticsearch/bin
 
 
