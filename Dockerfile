@@ -1,21 +1,18 @@
 FROM elasticsearch:alpine
 
-ENV CONTAINERPILOT_VERSION=2.6.0 \
-	CONTAINERPILOT=file:///etc/containerpilot/containerpilot.json \
-	CONSUL_VERSION=0.7.2 \
-	S6_VERSION=1.18.1.3
-
-
-EXPOSE 9200 9300 8301
-
 # Alpine packages
-RUN	apk -f --progress --no-cache upgrade &&\
-	apk -f --progress --no-cache add \
+RUN	apk -f -q --progress --no-cache upgrade &&\
+	apk -f -q --progress --no-cache add \
 		bash \
 		curl \
 		dnsmasq \
 		jq \
 		tzdata 
+
+ENV CONTAINERPILOT_VERSION=2.6.0 \
+	CONTAINERPILOT=file:///etc/containerpilot/containerpilot.json \
+	CONSUL_VERSION=0.7.2 \
+	S6_VERSION=1.19.1.1
 
 # Copy internal CA certificate bundle.
 COPY ca.pem /etc/ssl/private/
@@ -35,12 +32,14 @@ COPY bin/* /usr/local/bin/
 COPY containerpilot.json /etc/containerpilot/containerpilot.json
 COPY etc/ /etc
 COPY consul.json /etc/consul/
+COPY elasticsearch.yml /usr/share/elasticsearch/config/
 
 # If you build on top of this image, please provide this files
 # If you are using an internal CA
 ONBUILD COPY ca.pem /etc/ssl/private/
 ONBUILD COPY containerpilot.json /etc/containerpilot/containerpilot.json
 ONBUILD COPY consul.json /etc/consul/
+ONBUILD COPY elasticsearch.yml /usr/share/elasticsearch/config/
 
 WORKDIR /tmp
 RUN echo "Downloading S6 Overlay" &&\
@@ -70,12 +69,18 @@ RUN echo "Downloading S6 Overlay" &&\
 	adduser consul consul &&\
 # Create Consul data directory
 	mkdir /data &&\
+	mkdir -p /etc/consul &&\
 	chmod 770 /data &&\
 	chown -R consul: /data &&\
-	chmod 770 /etc/consul &&\
 	chown -R consul: /etc/consul/ &&\
 	chmod +x /bin/* &&\
+# Create and take ownership over required directories
+	mkdir -p /etc/containerpilot &&\
+	chmod -R g+w /etc/containerpilot &&\
+	chown -R elasticsearch:elasticsearch /etc/containerpilot &&\
 	cat /etc/ssl/private/ca.pem >> /etc/ssl/certs/ca-certificates.crt
+
+EXPOSE 9200 9300 8301
 
 # Put Consul data on a separate volume to avoid filesystem performance issues with Docker image layers
 VOLUME ["/data"]
