@@ -35,7 +35,7 @@ update_ES_configuration() {
 
 
 	if [ "$ES_ENVIRONMENT" = "prod" ]; then
-		REPLACEMENT_BOOTSTRAP_MLOCKALL='s/^#.*bootstrap\.mlockall:\s*true/bootstrap.mlockall: true/'
+		REPLACEMENT_BOOTSTRAP_MLOCKALL='s/^#.*bootstrap\.memory_lock:\s*true/bootstrap.memory_lock: true/'
 		sed -i "${REPLACEMENT_BOOTSTRAP_MLOCKALL}" /usr/share/elasticsearch/config/elasticsearch.yml
 	fi
 
@@ -58,8 +58,8 @@ update_ES_configuration() {
 	sed -i "${REPLACEMENT_ZEN_MIN_NODES}" /usr/share/elasticsearch/config/elasticsearch.yml
 
 
-	REPLACEMENT_ZEN_MCAST='s/^#.*discovery\.zen\.ping\.multicast\.enabled:.*/discovery.zen.ping.multicast.enabled: false/'
-	sed -i "${REPLACEMENT_ZEN_MCAST}" /usr/share/elasticsearch/config/elasticsearch.yml
+	#REPLACEMENT_ZEN_MCAST='s/^#.*discovery\.zen\.ping\.multicast\.enabled:.*/discovery.zen.ping.multicast.enabled: false/'
+	#sed -i "${REPLACEMENT_ZEN_MCAST}" /usr/share/elasticsearch/config/elasticsearch.yml
 
 
 	MASTER=$(echo $MASTER | jq -e -r -c 'unique | [.[]+":9300"]')
